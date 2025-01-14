@@ -10,8 +10,20 @@ mod tests {
     use math::V2;
 
     use pieces::{ChessPiece, ChessPieceColor};
-    use moves::{ChessMove, ChessMoveOption};
+    use moves::{ChessMove, ChessMoveExt};
     use board::{ChessTile, ChessBoard};
+
+    const TEST_ROOK_LAYOUT: [u8; 64] = [
+        2, 0, 0, 0, 0, 0, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        2, 3, 4, 5, 6, 4, 3, 2
+    ];
+    
 
     #[test]
     fn vec_2_test() {
@@ -22,18 +34,18 @@ mod tests {
 
     #[test]
     fn chess_move_test() {
-        let src: V2 = V2 {x: 0, y: 3};
-        let dst: V2 = V2 {x: 1, y: 3};
+        let src: V2 = V2 {x: 0, y: 1}; // move enemy pawn
+        let dst: V2 = V2 {x: 0, y: 2}; // one forward
         
-        let chess_move = ChessMove::new(&src, &dst, ChessMoveOption::Quiet);
+        let chess_move = ChessMove::raw(&src, &dst, 0);
 
         assert_eq!(src, chess_move.src());
         assert_eq!(dst, chess_move.dst());
-        assert_eq!(ChessMoveOption::Quiet, chess_move.option());
+        assert_eq!(ChessMoveExt::Quiet, chess_move.ext());
     }
     
     #[test]
-    fn chess_white_tile_test() {
+    fn chess_tile_white_test() {
         let piece: Option<ChessPiece> = Some(ChessPiece::Pawn);
         let color: Option<ChessPieceColor> = Some(ChessPieceColor::White);
 
@@ -44,7 +56,7 @@ mod tests {
     }
 
     #[test]
-    fn chess_black_tile_test() {
+    fn chess_tile_black_test() {
         let piece: Option<ChessPiece> = Some(ChessPiece::Pawn);
         let color: Option<ChessPieceColor> = Some(ChessPieceColor::Black);
 
@@ -55,7 +67,7 @@ mod tests {
     }
 
     #[test]
-    fn chess_empty_tile_test() {
+    fn chess_tile_empty_test() {
         let tile =  ChessTile::new(None, None).expect("could not create tile");
 
         assert_eq!(tile.piece(), None);
@@ -70,7 +82,7 @@ mod tests {
         for y in 0..2 {
             for x in 0..8 {
                 let src = V2 { x, y };
-                assert_eq!(chess_board.get_tile(&src).color(), Some(ChessPieceColor::White));
+                assert_eq!(chess_board.tile(&src).color(), Some(ChessPieceColor::White));
             }
         }
 
@@ -78,22 +90,118 @@ mod tests {
         for y in 6..8 {
             for x in 0..8 {
                 let src = V2 { x, y };
-                assert_eq!(chess_board.get_tile(&src).color(), Some(ChessPieceColor::Black));
+                assert_eq!(chess_board.tile(&src).color(), Some(ChessPieceColor::Black));
             }
         }
     }
 
     #[test]
-    fn chess_board_put_test() {
+    fn chess_board_take_turn_pawn_move() {
         let mut chess_board = ChessBoard::new(ChessPieceColor::White);
 
         let src = V2 { x: 0, y: 1 };
         let dst = V2 { x: 0, y: 2 };
 
-        chess_board.put_tile(&src, &dst);
+        assert!(chess_board.take_turn(&src, &dst));
 
-        assert_eq!(chess_board.get_tile(&src).color(), None);
-        assert_eq!(chess_board.get_tile(&dst).color(), Some(ChessPieceColor::Black));
+        assert_eq!(chess_board.tile(&src).color(), None);
+        assert_eq!(chess_board.tile(&dst).color(), Some(ChessPieceColor::Black));
+
+        assert_eq!(
+            chess_board.last_turn().expect("no last move").ext(), 
+            ChessMoveExt::Quiet
+        );
     }
 
+    // TODO: test pawn illegal moves 
+
+    #[test]
+    fn chess_board_take_turn_pawn_double_move() {
+        let mut chess_board = ChessBoard::new(ChessPieceColor::Black);
+
+        let src = V2 { x: 0, y: 1 }; // move enemy pawn twice
+        let dst = V2 { x: 0, y: 3 };
+
+        assert!(chess_board.take_turn(&src, &dst));
+
+        assert_eq!(chess_board.tile(&src).color(), None);
+        assert_eq!(chess_board.tile(&dst).color(), Some(ChessPieceColor::White));
+        
+        assert_eq!(
+            chess_board.last_turn().expect("no last move").ext(), 
+            ChessMoveExt::DoublePawnPush
+        );
+    }
+
+    // TODO: test pawn double move illegal
+
+    #[test]
+    fn chess_board_take_turn_pawn_attack() {
+        let mut chess_board = ChessBoard::new(ChessPieceColor::Black);
+        let mut src = V2 { x: 0, y: 1 }; // starting enemy pawn
+
+        let dsts = [
+            V2 { x: 0, y: 3 }, // move forward 2 (y = 4)
+            V2 { x: 0, y: 4 }, // move forward 1 (y = 5)
+            V2 { x: 0, y: 5 }, // move forward 1 (y = 6, able to attack)
+            V2 { x: 1, y: 6 } // attack
+        ];
+
+        for dst in dsts {
+            chess_board.take_turn(&src, &dst);
+            src = dst;
+        }
+
+        assert_eq!(
+            chess_board.last_turn().expect("no last move").ext(),
+            ChessMoveExt::Captures
+        )
+    }
+
+    #[test]
+    fn chess_board_take_turn_rook_x_axis() {
+        let mut chess_board = ChessBoard::from_layout(ChessPieceColor::White, TEST_ROOK_LAYOUT);
+
+        let src = V2 { x: 0, y: 0 };
+        let dst = V2 { x: 4, y: 0 };
+
+        assert!(chess_board.take_turn(&src, &dst));
+    }
+
+    #[test]
+    fn chess_board_take_turn_rook_y_axis() {
+        let mut chess_board = ChessBoard::from_layout(ChessPieceColor::White, TEST_ROOK_LAYOUT);
+
+        let move_pawn_src = V2 { x: 0, y: 1 };
+        let move_pawn_dst = V2 { x: 0, y: 3 };
+
+        chess_board.take_turn(&move_pawn_src, &move_pawn_dst);
+
+        let src = V2 { x: 0, y: 0 };
+        let dst = V2 { x: 0, y: 2 };
+
+        assert!(chess_board.take_turn(&src, &dst));
+    }
+
+    // TODO: test invalid rook movements
+
+    #[test]
+    fn chess_board_take_turn_knight_move() {
+        let mut chess_board = ChessBoard::new(ChessPieceColor::Black);
+
+        let src = V2 { x: 1, y: 0 };
+        let dst = V2 { x: 2, y: 2 };
+
+        assert!(chess_board.take_turn(&src, &dst));
+    }
+
+    #[test]
+    fn chess_board_take_turn_knight_invalid_move() {
+        let mut chess_board = ChessBoard::new(ChessPieceColor::Black);
+
+        let src = V2 { x: 1, y: 0 };
+        let dst = V2 { x: 2, y: 1 };
+
+        assert_eq!(chess_board.take_turn(&src, &dst), false);
+    }
 }
