@@ -134,12 +134,7 @@ impl ChessMove {
         ];
 
         moves.iter()
-            .filter(|valid_move| {
-                match valid_move {
-                    Some(valid_move) => board.tile(valid_move).color() != tile_color,
-                    None => false
-                }
-            })
+            .filter(|valid_move| **valid_move != None)
             .map(|valid_move| valid_move.unwrap())
             .collect()
     }
