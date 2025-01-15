@@ -13,17 +13,16 @@ mod tests {
     use moves::{ChessMove, ChessMoveExt};
     use board::{ChessTile, ChessBoard};
 
-    const TEST_ROOK_LAYOUT: [u8; 64] = [
+    const TEST_LAYOUT: [u8; 64] = [
         2, 0, 0, 0, 0, 0, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 0, 0, 1, 1, 1, 1,
         2, 3, 4, 5, 6, 4, 3, 2
     ];
-    
 
     #[test]
     fn vec_2_test() {
@@ -160,7 +159,7 @@ mod tests {
 
     #[test]
     fn chess_board_take_turn_rook_x_axis() {
-        let mut chess_board = ChessBoard::from_layout(ChessPieceColor::White, TEST_ROOK_LAYOUT);
+        let mut chess_board = ChessBoard::from_layout(ChessPieceColor::White, TEST_LAYOUT);
 
         let src = V2 { x: 0, y: 0 };
         let dst = V2 { x: 4, y: 0 };
@@ -170,7 +169,7 @@ mod tests {
 
     #[test]
     fn chess_board_take_turn_rook_y_axis() {
-        let mut chess_board = ChessBoard::from_layout(ChessPieceColor::White, TEST_ROOK_LAYOUT);
+        let mut chess_board = ChessBoard::from_layout(ChessPieceColor::White, TEST_LAYOUT);
 
         let move_pawn_src = V2 { x: 0, y: 1 };
         let move_pawn_dst = V2 { x: 0, y: 3 };
@@ -197,10 +196,50 @@ mod tests {
 
     #[test]
     fn chess_board_take_turn_knight_invalid_move() {
-        let mut chess_board = ChessBoard::new(ChessPieceColor::Black);
+        let mut chess_board = ChessBoard::new(ChessPieceColor::White);
 
         let src = V2 { x: 1, y: 0 };
         let dst = V2 { x: 2, y: 1 };
+
+        assert_eq!(chess_board.take_turn(&src, &dst), false);
+    }
+
+    #[test]
+    fn chess_board_take_turn_bishop() {
+        let mut chess_board = ChessBoard::from_layout(ChessPieceColor::White, TEST_LAYOUT);
+        
+        let src = V2 { x: 2, y: 7 };
+        let dst = V2 { x: 4, y: 5 };
+
+        assert!(chess_board.take_turn(&src, &dst));
+    }
+
+    #[test]
+    fn chess_board_take_turn_queen_move_plus() {
+        let mut chess_board = ChessBoard::from_layout(ChessPieceColor::Black, TEST_LAYOUT);
+
+        let src = V2 { x: 3, y: 7 };
+        let dst = V2 { x: 3, y: 4 };
+
+        assert!(chess_board.take_turn(&src, &dst));
+    }
+
+    #[test]
+    fn chess_board_take_turn_queen_move_diag() {
+        let mut chess_board = ChessBoard::from_layout(ChessPieceColor::White, TEST_LAYOUT);
+
+        let src = V2 { x: 3, y: 7 };
+        let dst = V2 { x: 0, y: 4 };
+
+        assert!(chess_board.take_turn(&src, &dst));
+    }
+
+    #[test]
+    fn chess_board_take_turn_queen_move_invalid() {
+        let mut chess_board = ChessBoard::from_layout(ChessPieceColor::White, TEST_LAYOUT);
+
+        let src = V2 { x: 3, y: 7 };
+        let dst = V2 { x: 2, y: 5 };
 
         assert_eq!(chess_board.take_turn(&src, &dst), false);
     }
