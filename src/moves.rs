@@ -117,7 +117,7 @@ impl ChessMove {
             Some(ChessPiece::Bishop) => search_diag(src, board),
             Some(ChessPiece::Queen) => Self::queen_moves(src, board),
             Some(ChessPiece::King) => vec![],
-            _ => vec![] // cant move an empty space
+            None => vec![] // cant move an empty space
         };
 
         !valid_moves.iter().any(|valid_move| valid_move == dst)
