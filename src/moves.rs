@@ -1,6 +1,6 @@
 use crate::pieces::{ChessPiece};
 use crate::board::{ChessBoard, ChessTile};
-use crate::math::{search_plus, search_diag, V2};
+use crate::math::{search_grid_plus, search_grid_diag, V2};
 
 #[allow(dead_code)]
 #[derive(Copy, Clone)]
@@ -103,18 +103,34 @@ impl ChessMove {
     }
 
     fn queen_moves(src: &V2, board: ChessBoard) -> Vec<V2> {
-        search_plus(src, board).into_iter()
-            .chain(search_diag(src, board).into_iter())
+        // just merge the plus and diagonal search
+        search_grid_plus(src, board).into_iter()
+            .chain(search_grid_diag(src, board).into_iter())
             .collect()
+    }
+
+    fn king_moves(src: &V2, board: ChessBoard) -> Vec<V2> {
+        
+        for y in src.y - 1..src.y + 1 {
+            for x in src.x - 1..src.x + 1 {
+                let dst = V2::from_i8(x as i8, y as i8);
+                if dst != None && dst != Some(*src) {
+                    let d = dst.unwrap();
+                    println!("({}, {})", d.x, d.y);
+                }
+            }
+        }
+
+        vec![]
     }
 
     fn illegal_move(src: &V2, dst: &V2, board: ChessBoard) -> bool {
         // check for each type of piece
         let valid_moves = match board.tile(src).piece() {
             Some(ChessPiece::Pawn) => Self::pawn_moves(src, board),
-            Some(ChessPiece::Rook) => search_plus(src, board),
+            Some(ChessPiece::Rook) => search_grid_plus(src, board),
             Some(ChessPiece::Knight) => Self::knight_moves(src, board),
-            Some(ChessPiece::Bishop) => search_diag(src, board),
+            Some(ChessPiece::Bishop) => search_grid_diag(src, board),
             Some(ChessPiece::Queen) => Self::queen_moves(src, board),
             Some(ChessPiece::King) => vec![],
             None => vec![] // cant move an empty space

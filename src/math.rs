@@ -7,13 +7,24 @@ pub struct V2 {
 }
 
 impl V2 {
+    pub fn in_bounds(x: i8, y: i8) -> bool {
+        x >= 0 && x < 8 && y >= 0 && y < 8
+    }
+
+    pub fn from_u16(x: u16, y: u16) -> Option<Self> {
+        match x < 8 && y < 8 {
+            true => Some(Self { x, y }),
+            false => None
+        }
+    }
+
     pub fn from_i8(x: i8, y: i8) -> Option<Self> {
-        match x < 0 || x > 7 || y < 0 || y > 7 {
-            true => None, // out of bounds
-            false => Some(Self { 
+        match Self::in_bounds(x, y) {
+            true => Some(Self { 
                 x: x.try_into().unwrap(), 
                 y: y.try_into().unwrap()
-            })
+            }),
+            false => None, // out of bounds
         }
     }
 
@@ -33,7 +44,9 @@ impl V2 {
 // TODO: abstract the if statement clauses into its own function. each one is general
 // enough to do this in plus and diag.
 
-pub fn search_plus(src: &V2, board: ChessBoard) -> Vec<V2> {
+// there is probably a better way to do this
+
+pub fn search_grid_plus(src: &V2, board: ChessBoard) -> Vec<V2> {
     let tile: ChessTile = board.tile(src);
     let mut moves: Vec<V2> = vec![];
 
@@ -85,7 +98,7 @@ pub fn search_plus(src: &V2, board: ChessBoard) -> Vec<V2> {
 }
 
 
-pub fn search_diag(src: &V2, board: ChessBoard) -> Vec<V2> {
+pub fn search_grid_diag(src: &V2, board: ChessBoard) -> Vec<V2> {
     let tile_color = board.tile(src).color();
     let mut moves: Vec<V2> = vec![];
 
