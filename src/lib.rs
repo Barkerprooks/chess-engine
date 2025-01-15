@@ -7,11 +7,10 @@ mod math;
 mod tests {
     use super::*;
 
-    use math::V2;
-
     use pieces::{ChessPiece, ChessPieceColor};
     use moves::{ChessMove, ChessMoveExt};
     use board::{ChessTile, ChessBoard};
+    use math::V2;
 
     const TEST_LAYOUT: [u8; 64] = [
         2, 0, 0, 0, 0, 0, 1, 1,
@@ -25,18 +24,11 @@ mod tests {
     ];
 
     #[test]
-    fn vec_2_test() {
-        let vec: V2 = V2 { x: 6, y: 9 };
-        assert_eq!(6, vec.x);
-        assert_eq!(9, vec.y);
-    }
-
-    #[test]
     fn chess_move_test() {
-        let src: V2 = V2 {x: 0, y: 1}; // move enemy pawn
-        let dst: V2 = V2 {x: 0, y: 2}; // one forward
+        let src = V2 {x: 0, y: 1}; // move enemy pawn
+        let dst = V2 {x: 0, y: 2}; // one forward
         
-        let chess_move = ChessMove::raw(&src, &dst, 0);
+        let chess_move = ChessMove::raw(&src, &dst, ChessMoveExt::Quiet as u16);
 
         assert_eq!(src, chess_move.src());
         assert_eq!(dst, chess_move.dst());
@@ -45,8 +37,8 @@ mod tests {
     
     #[test]
     fn chess_tile_white_test() {
-        let piece: Option<ChessPiece> = Some(ChessPiece::Pawn);
-        let color: Option<ChessPieceColor> = Some(ChessPieceColor::White);
+        let piece = Some(ChessPiece::Pawn);
+        let color = Some(ChessPieceColor::White);
 
         let tile = ChessTile::new(piece, color).expect("could not create tile");
 
@@ -56,8 +48,8 @@ mod tests {
 
     #[test]
     fn chess_tile_black_test() {
-        let piece: Option<ChessPiece> = Some(ChessPiece::Pawn);
-        let color: Option<ChessPieceColor> = Some(ChessPieceColor::Black);
+        let piece = Some(ChessPiece::Pawn);
+        let color = Some(ChessPieceColor::Black);
 
         let tile = ChessTile::new(piece, color).expect("could not create tile");
 

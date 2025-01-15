@@ -184,6 +184,7 @@ impl ChessBoard {
             }
             println!();
         }
+        println!("turn: {}", self.turn);
         println!();
     }
 }

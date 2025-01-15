@@ -120,6 +120,9 @@ impl ChessMove {
             None => vec![] // cant move an empty space
         };
 
+        // if the coordinate is included, it's valid.
+        // invert the valid signal to return the correct
+        // value
         !valid_moves.iter().any(|valid_move| valid_move == dst)
     }
 
