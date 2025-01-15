@@ -13,9 +13,11 @@ const DEFAULT_CHESS_BOARD_MAP: [u8; 64] = [
     2, 3, 4, 5, 6, 4, 3, 2
 ];
 
+#[allow(dead_code)]
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct ChessTile (u8);
 
+#[allow(dead_code)]
 #[derive(Copy, Clone)]
 pub struct ChessBoard {
     turn: u8, // keeping track of the current turn
@@ -24,6 +26,7 @@ pub struct ChessBoard {
     player_color: ChessPieceColor
 }
 
+#[allow(dead_code)]
 impl ChessTile {
     pub fn new(piece: Option<ChessPiece>, color: Option<ChessPieceColor>) -> Result<Self, &'static str> {
         match piece {
@@ -72,6 +75,7 @@ impl ChessTile {
     }
 }
 
+#[allow(dead_code)]
 impl ChessBoard {
     pub fn from_layout(player_color: ChessPieceColor, chess_board_map: [u8; 64]) -> Self {
         let opponent_color = match player_color {

@@ -2,9 +2,11 @@ use crate::pieces::{ChessPiece};
 use crate::board::{ChessBoard, ChessTile};
 use crate::math::V2;
 
+#[allow(dead_code)]
 #[derive(Copy, Clone)]
 pub struct ChessMove (pub u16);
 
+#[allow(dead_code)]
 #[derive(Debug, PartialEq)]
 pub enum ChessMoveExt {
     Quiet,
@@ -15,6 +17,7 @@ pub enum ChessMoveExt {
     EpCapture
 }
 
+#[allow(dead_code)]
 impl ChessMove {
 
     fn pawn_moves(src: &V2, board: ChessBoard) -> Vec<V2> {
@@ -126,7 +129,7 @@ impl ChessMove {
         
         let tile_color = board.tile(src).color();
 
-        let mut moves = vec![
+        let moves = vec![
             V2::get_offset(src, -1,  2), V2::get_offset(src, 1,  2),
             V2::get_offset(src, -2,  1), V2::get_offset(src, 2,  1),
             V2::get_offset(src, -1, -2), V2::get_offset(src, 1, -2),
@@ -134,25 +137,25 @@ impl ChessMove {
         ];
 
         moves.iter()
-            .filter(|valid_move| **valid_move != None)
+            .filter(|valid_move| {
+                match valid_move {
+                    Some(valid_move) => board.tile(valid_move).color() != tile_color,
+                    None => false
+                }
+            })
             .map(|valid_move| valid_move.unwrap())
             .collect()
     }
 
+    fn bishop_moves(_src: &V2, _board: ChessBoard) -> Vec<V2> { vec![] }
+
     fn illegal_move(src: &V2, dst: &V2, board: ChessBoard) -> bool {
-        let tiles = board.tile_pair(src, dst);
-
-        if tiles.0.color() == tiles.1.color() || src == dst {
-            // make sure we're not in the same location or 
-            // moving into another piece of the same color
-            return true;
-        }
-
         // check for each type of piece
-        let valid_moves = match tiles.0.piece() {
+        let valid_moves = match board.tile(src).piece() {
             Some(ChessPiece::Pawn) => Self::pawn_moves(src, board),
             Some(ChessPiece::Rook) => Self::rook_moves(src, board),
             Some(ChessPiece::Knight) => Self::knight_moves(src, board),
+            Some(ChessPiece::Bishop) => Self::bishop_moves(src, board),
             _ => vec![] // cant move an empty space
         };
 
@@ -208,6 +211,7 @@ impl ChessMove {
     }
 }
 
+#[allow(dead_code)]
 impl ChessMoveExt {
     pub fn from(value: u16) -> ChessMoveExt {
         match value {
