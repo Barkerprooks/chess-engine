@@ -3,6 +3,11 @@ pub mod board;
 pub mod moves;
 pub mod math;
 
+pub use pieces::{ChessPiece, ChessPieceColor};
+pub use moves::{ChessMove, ChessMoveExt};
+pub use board::{ChessTile, ChessBoard};
+pub use math::V2;
+
 #[cfg(test)]
 mod tests {
     use super::*;
