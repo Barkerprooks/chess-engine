@@ -1,7 +1,7 @@
-mod pieces;
-mod board;
-mod moves;
-mod math;
+pub mod pieces;
+pub mod board;
+pub mod moves;
+pub mod math;
 
 #[cfg(test)]
 mod tests {
