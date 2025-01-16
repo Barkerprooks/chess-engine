@@ -110,18 +110,18 @@ impl ChessMove {
     }
 
     fn king_moves(src: &V2, board: ChessBoard) -> Vec<V2> {
-        
+        let mut moves = vec![];
+
         for y in src.y - 1..src.y + 1 {
             for x in src.x - 1..src.x + 1 {
                 let dst = V2::from_i8(x as i8, y as i8);
                 if dst != None && dst != Some(*src) {
-                    let d = dst.unwrap();
-                    println!("({}, {})", d.x, d.y);
+                    moves.push(dst.unwrap());
                 }
             }
         }
 
-        vec![]
+        moves
     }
 
     fn illegal_move(src: &V2, dst: &V2, board: ChessBoard) -> bool {
@@ -132,7 +132,7 @@ impl ChessMove {
             Some(ChessPiece::Knight) => Self::knight_moves(src, board),
             Some(ChessPiece::Bishop) => search_grid_diag(src, board),
             Some(ChessPiece::Queen) => Self::queen_moves(src, board),
-            Some(ChessPiece::King) => vec![],
+            Some(ChessPiece::King) => Self::king_moves(src, board),
             None => vec![] // cant move an empty space
         };
 

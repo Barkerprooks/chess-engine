@@ -235,4 +235,14 @@ mod tests {
 
         assert_eq!(chess_board.take_turn(&src, &dst), false);
     }
+
+    #[test]
+    fn chess_board_take_turn_king_move() {
+        let mut chess_board = ChessBoard::from_layout(ChessPieceColor::White, TEST_LAYOUT);
+
+        let src = V2 { x: 4, y: 7 };
+        let dst = V2 { x: 4, y: 6 };
+
+        assert!(chess_board.take_turn(&src, &dst));
+    }
 }
