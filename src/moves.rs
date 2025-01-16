@@ -110,13 +110,17 @@ impl ChessMove {
     }
 
     fn king_moves(src: &V2, board: ChessBoard) -> Vec<V2> {
+        let tile_color = board.tile(src).color();
         let mut moves = vec![];
 
         for y in src.y - 1..src.y + 1 {
             for x in src.x - 1..src.x + 1 {
                 let dst = V2::from_i8(x as i8, y as i8);
-                if dst != None && dst != Some(*src) {
-                    moves.push(dst.unwrap());
+                if dst.is_some() && dst != Some(*src)  {
+                    let valid_dst = dst.unwrap();
+                    if board.tile(&valid_dst).color() != tile_color {
+                        moves.push(dst.unwrap());
+                    }
                 }
             }
         }
@@ -137,8 +141,7 @@ impl ChessMove {
         };
 
         // if the coordinate is included, it's valid.
-        // invert the valid signal to return the correct
-        // value
+        // invert the valid signal to return the correct value
         !valid_moves.iter().any(|valid_move| valid_move == dst)
     }
 

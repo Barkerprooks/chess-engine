@@ -6,6 +6,7 @@ pub struct V2 {
     pub y: u16 
 }
 
+#[allow(dead_code)]
 impl V2 {
     pub fn in_bounds(x: i8, y: i8) -> bool {
         x >= 0 && x < 8 && y >= 0 && y < 8
