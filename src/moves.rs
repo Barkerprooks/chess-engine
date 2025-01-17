@@ -3,11 +3,11 @@ use crate::board::{ChessBoard, ChessTile};
 use crate::math::{search_grid_plus, search_grid_diag, V2};
 
 #[allow(dead_code)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct ChessMove (pub u16);
 
 #[allow(dead_code)]
-#[derive(Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum ChessMoveExt {
     Quiet,
     DoublePawnPush,

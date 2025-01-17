@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum ChessPiece { Pawn = 1, Rook = 2, Knight = 3, Bishop = 4, Queen = 5, King = 6 }
 
 impl ChessPiece {

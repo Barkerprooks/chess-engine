@@ -18,7 +18,7 @@ const DEFAULT_CHESS_BOARD_MAP: [u8; 64] = [
 pub struct ChessTile (u8);
 
 #[allow(dead_code)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct ChessBoard {
     turn: u8, // keeping track of the current turn
     tiles: [ChessTile; 64], // 8x8 board
